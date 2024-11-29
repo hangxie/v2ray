@@ -1,10 +1,10 @@
 FROM debian:12-slim
 ARG DEBIAN_FRONTEND=noninteractive
+ARG VERSION
 
 RUN adduser --home /app --disabled-password --system app \
  && apt-get update -qq \
- && apt-get -y -qq install ca-certificates jq curl zip \
- && VERSION=$(curl -s https://api.github.com/repos/v2fly/v2ray-core/releases/latest | jq -r .name) \
+ && apt-get -y -qq install ca-certificates curl zip \
  && case $(uname -m) in \
         x86_64) \
             ZIP=v2ray-linux-64.zip \
@@ -25,7 +25,7 @@ RUN adduser --home /app --disabled-password --system app \
  && unzip /tmp/v2ray.zip v2ray -d /app/ \
  && chmod +x /app/v2ray \
  && chown app /app/v2ray \
- && apt -y -qq remove --purge curl jq zip \
+ && apt -y -qq remove --purge curl zip \
  && apt -y -qq autoremove --purge \
  && rm -rf /var/lib/apt/lists/* /tmp/v2ray.zip
 
