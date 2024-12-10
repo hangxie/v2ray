@@ -32,6 +32,8 @@ function build() {
 
     # CCI does not support volume mount, so use docker cp instead
     docker cp ./deb ${DOCKER_NAME}:/tmp/
+    docker cp ./config.json ${DOCKER_NAME}:/tmp/
+    docker cp ./v2ray.service ${DOCKER_NAME}:/tmp/
 
     # Build deb
     docker exec -t ${DOCKER_NAME} bash -c "
@@ -44,9 +46,9 @@ function build() {
         unzip /tmp/v2ray.zip v2ray -d /tmp/deb/usr/bin/;
 	    sed -i 's/^Version:.*/Version: ${DEB_VER}/; s/^Architecture:.*/Architecture: ${PKG_ARCH}/' /tmp/deb/DEBIAN/control;
         mkdir -p /tmp/deb/etc/v2ray;
-        cp /tmp/deb/config.json /tmp/deb/etc/v2ray/;
+        cp /tmp/config.json /tmp/deb/etc/v2ray/;
         mkdir -p /tmp/deb/lib/systemd/system;
-        cp /tmp/deb/v2ray.service /tmp/deb/lib/systemd/system/; 
+        cp /tmp/v2ray.service /tmp/deb/lib/systemd/system/; 
         cd /tmp;
         dpkg-deb --build /tmp/deb;
     "
