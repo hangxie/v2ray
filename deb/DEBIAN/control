@@ -1,0 +1,7 @@
+Package: v2ray
+Version: CHANGEME
+Section: net
+Priority: optional
+Architecture: CHANGEME
+Maintainer: 7977860+hangxie@users.noreply.github.com
+Description: v2ray server https://github.com/hangxie/v2ray

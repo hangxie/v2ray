@@ -1,0 +1,13 @@
+[Unit]
+Description=v2ray
+Documentation=https://www.v2fly.org/
+After=network.target
+
+[Service]
+User=v2ray
+NoNewPrivileges=true
+ExecStart=/usr/bin/v2ray run -config /etc/v2ray/config.json
+Restart=on-failure
+
+[Install]
+WantedBy=multi-user.target
