@@ -2,6 +2,7 @@
 
 set -euo pipefail
 
+mkdir -p build/
 VERSION=$(curl -s https://api.github.com/repos/v2fly/v2ray-core/releases/latest | jq -r .name)
 
 function build() {
@@ -51,7 +52,7 @@ function build() {
         cd /tmp;
         dpkg-deb --build /tmp/deb;
     "
-    docker cp ${DOCKER_NAME}:/tmp/deb.deb ./v2ray_${DEB_VER}_${PKG_ARCH}.deb
+    docker cp ${DOCKER_NAME}:/tmp/deb.deb ./build/v2ray_${DEB_VER}_${PKG_ARCH}.deb
 
     # Clean up
     docker ps -a | grep ${DOCKER_NAME} && docker rm -f ${DOCKER_NAME}
