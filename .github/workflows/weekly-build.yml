@@ -6,7 +6,36 @@ on:
   workflow_dispatch:  # Allow manual triggering
 
 jobs:
+  check-release:
+    runs-on: ubuntu-latest
+    outputs:
+      should-skip: ${{ steps.check.outputs.skip }}
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Check if release already exists
+        id: check
+        run: |
+          # Get latest v2ray version
+          VERSION=$(curl -s https://api.github.com/repos/v2fly/v2ray-core/releases/latest | jq -r .name)
+          TAG="v2ray-$VERSION"
+
+          # Check if release already exists in this repo
+          if gh release view "$TAG" >/dev/null 2>&1; then
+            echo "Release $TAG already exists. Skipping build."
+            echo "skip=true" >> $GITHUB_OUTPUT
+            exit 0
+          else
+            echo "Release $TAG does not exist. Proceeding with build."
+            echo "skip=false" >> $GITHUB_OUTPUT
+          fi
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+
   build-docker:
+    needs: check-release
+    if: needs.check-release.outputs.should-skip != 'true'
     runs-on: ubuntu-latest
     steps:
       - name: Checkout code
@@ -28,6 +57,8 @@ jobs:
         run: ./build-docker.sh
 
   build-packages:
+    needs: check-release
+    if: needs.check-release.outputs.should-skip != 'true'
     runs-on: ubuntu-latest
     steps:
       - name: Checkout code
@@ -53,7 +84,8 @@ jobs:
           retention-days: 30
 
   create-release:
-    needs: build-packages
+    needs: [check-release, build-packages]
+    if: needs.check-release.outputs.should-skip != 'true'
     runs-on: ubuntu-latest
     permissions:
       contents: write
